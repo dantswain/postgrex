@@ -20,7 +20,7 @@ iex> Postgrex.query!(pid, "INSERT INTO comments (user_id, text) VALUES (10, 'hey
 ## Features
 
   * Automatic decoding and encoding of Elixir values to and from PostgreSQL's binary format
-  * User defined extensions for encoding and decoding any PostgresSQL type
+  * User defined extensions for encoding and decoding any PostgreSQL type
   * Supports transactions, prepared queries and multiple pools via [DBConnection](https://github.com/elixir-ecto/db_connection)
   * Supports PostgreSQL 8.4 and 9.0-9.6 (hstore is not supported on 8.4)
 
@@ -64,10 +64,17 @@ Extensions are used to extend Postgrex' built-in type encoding/decoding.
 
 Here is a [JSON extension](https://github.com/elixir-ecto/postgrex/blob/master/lib/postgrex/extensions/json.ex) that supports encoding/decoding Elixir maps to the Postgres' JSON type.
 
-To use the extension pass it to the connection as seen below:
+Extensions can be specified and configured when building custom type modules. For example, if you want to different a JSON encoder/decode, you can define a new type module as below:
 
 ```elixir
-Postgrex.start_link(extensions: [{Postgrex.Extensions.JSON, library: Poison}], ...)
+# Postgrex.Types.define(module_name, extra_extensions, options)
+Postgrex.Types.define(MyApp.PostgrexTypes, [], json: AnotherJSONLib)
+```
+
+Once a type module is defined, you must specify it on `start_link`:
+
+```elixir
+Postgrex.start_link(types: MyApp.PostgrexTypes)
 ```
 
 ## OID type encoding
